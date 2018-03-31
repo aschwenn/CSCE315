@@ -1,0 +1,7 @@
+CREATE TABLE `Project1` (
+ `ID` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Key',
+ `Timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'Database receive timestamp',
+ `Time` time NOT NULL COMMENT 'Time sent from Arduino',
+ `DayOfWeek` varchar(9) NOT NULL,
+ PRIMARY KEY (`ID`)
+) ENGINE=InnoDB AUTO_INCREMENT=770905 DEFAULT CHARSET=latin1

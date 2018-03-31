@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+    <FONT face="roboto">
+    <head>
+        <!-- Using styles.css for all style design -->
+        <link rel="stylesheet" href="style.css">
+        <title>CSCE 315</title>
+    </head>
+    <body>
+
+        <!-- Establishing connection with the database -->
+        <?php
+            include("analyticsfunctions.php");
+
+            $servername = "database.cse.tamu.edu";
+            $database = "XXXXX";
+            $username = "XXXXX";
+            $tablename = "Project1";
+            $password = "XXXXX";
+
+            // Create connection (object-oriented)
+            $conn = new mysqli($servername, $username, $password);
+
+            // Check that connection was established
+            echo "<center><em>";
+            if ($conn->connect_error)
+            {
+                echo("Error: could not connect to $servername: " . $conn->connect_error);
+            }
+            else
+            echo "Connected to database!<br>";
+        ?>
+
+        <!-- Receive input -->
+        <?php
+            $option = "default";
+            $gen = 0;
+
+            if ($_SERVER["REQUEST_METHOD"] == "POST")
+            {
+                $option = $_POST["debug"]; // pulls data from form
+                $gen = $_POST["generate"];
+            }
+        ?>
+
+        <h2>Debugging</h2>
+        <p>
+            <!-- Debug form -->
+            <form method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>">
+                Debug options:
+                <input type="radio" name="debug" value="sendtest">Send a test
+                <input type="radio" name="debug" value="remove">Remove last entry
+                <input type="radio" name="debug" value="display">Display table
+                <input type="radio" name="debug" value="clear">Clear table
+                <!-- Included for testing the full range of the chart features -->
+                <!-- <input type="radio" name="debug" value="history">Create realistic history -->
+                <br>Generate <input type="number" name="generate"> random data entries 
+                <br><br>
+                <input type="submit" name="submit" value="Submit">
+                <br>
+            </form>
+            <br><br>
+
+            <!-- Interpret form input -->
+            <?php
+
+                function displayRow($row)
+                {
+                    echo "<b>ID:</b> " . $row["ID"] . " <b>Timestamp:</b> " . $row["Timestamp"] . " <b>Time:</b> " . $row["Time"] . " <b>DayOfWeek:</b> " . $row["DayOfWeek"] . "<br>";
+                }
+
+                if ($gen != 0)
+                {
+                    generateTable($conn,$database,$tablename,$gen,NULL);
+                }
+                if ($option == "display"){
+                    echo "Table:<br><br>\n";
+                    // get ID of last inserted record
+                    $sql = "SELECT * FROM `$database`.`Project1`";
+                    $result = $conn->query($sql);
+
+                    // display
+                    if ($result->num_rows > 0)
+                    {
+                        while($row = $result->fetch_assoc())
+                        {
+                            displayRow($row);
+                        }
+                    }
+                    else
+                    {
+                        echo "Table is empty.";
+                    }
+                }
+                elseif ($option == "sendtest")
+                {
+                    $sql = "INSERT INTO `$database`.`Project1` (`ID`, `Timestamp`, `Time`, `DayOfWeek`) VALUES (NULL, CURRENT_TIMESTAMP, '12:00:00', 'Monday');";
+                    if ($conn->query($sql) === TRUE)
+                    {
+                        echo "New record created successfully";
+                    }
+                    else
+                    {
+                        echo "Error: " . $sql . "<br>" . $conn->error;
+                    }
+                }
+                elseif ($option == "remove")
+                {
+                    $sql = "DELETE FROM `$database`.`Project1` WHERE `ID`=(SELECT max(`ID`) FROM (SELECT * FROM `$database`.`Project1` AS `mytable`) `removal`)";
+                    if ($conn->query($sql) === TRUE)
+                    {
+                        echo "Last record removed successfully";
+                    }
+                    else
+                    {
+                        echo "Error: " . $sql . "<br>" . $conn->error;
+                    }
+                }
+                elseif ($option == "clear")
+                {
+                    $sql = "DELETE FROM `$database`.`Project1`";
+                    if ($conn->query($sql) === FALSE)
+                    {
+                        echo "Error: " . $sql . "<br>" . $conn->error;
+                    }
+                }
+                // Included for testing the full range of the chart features
+                /*
+                elseif ($option == "history")
+                {
+                    generateHistory($conn, $database, $tablename);
+                }
+                */
+            ?>
+
+        </p>
+
+
+        <?php
+            // Close database connection
+            $conn->close();
+        ?>
+    </body>
+</html>

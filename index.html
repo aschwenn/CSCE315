@@ -1,0 +1,67 @@
+<!-- Main page of the website -->
+<!DOCTYPE html>
+<html>
+    <FONT face="roboto">
+    <head>
+        <!-- Using styles.css for all style design -->
+        <link rel="stylesheet" href="style.css">
+        <title>CSCE 315</title>
+    </head>
+    <body>
+        <!-- Establishing connection with the database -->
+        <?php
+            $servername = "database.cse.tamu.edu";
+            $database = "XXXXX";
+            $username = "XXXXX";
+            $tablename = "Project1";
+            $password = "XXXXX";
+
+            // Create connection (object-oriented)
+            $conn = new mysqli($servername, $username, $password);
+
+            // Check that connection was established
+            echo "<center><em>";
+            if ($conn->connect_error)
+            {
+                echo("Error: could not connect to $servername: " . $conn->connect_error);
+            }
+            echo "</center></em>";
+        ?>
+
+        <!-- Page header and description -->
+        <h1>TAMU Rec Center Analytics</h1>
+        <p>Howdy! Below you can view analytics data for the new southern entrance of the Student Rec Center. Our <a href="index.html#Aggregates"><em>Aggregates</em></a> section displays total data since our counter was first actived, and our <a href="index.html#Timeline"><em>Timeline</em></a> section calculates statistics and displays a timeline for a given timeframe.</p>
+        <hr>
+
+        <!-- Display analytics based on user input -->
+        <h2 id="Aggregates">Aggregates</h2>
+        <p>
+            <?php
+                $sql = "SELECT * FROM `$database`.`Project1`";
+                $result = $conn->query($sql);
+                $sum = mysqli_num_rows($result);
+                echo "<b>Total Number of Visitors: " . $sum . "</b><br>\n";
+
+                include("aggregates.php");
+            ?>
+        </p>
+        <br>
+        <hr>
+        <h2 id="Timeline">Timeline</h2>
+        <p>
+            <?php
+                include("timeline.php");
+            ?>
+        </p>
+        <hr>
+        <br><br>
+
+        <?php
+            // Close database connection
+            $conn->close();
+        ?>
+    </body>
+    <footer>
+        <p><a href="debug.html">Debug</a></p>
+    </footer>
+</html>
